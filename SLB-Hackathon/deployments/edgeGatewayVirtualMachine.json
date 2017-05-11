@@ -1,0 +1,97 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "AdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "AdminPassword": {
+      "type": "securestring"
+    },
+    "GatewaySubnetRef": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "VMName": "GatewayVM",
+    "VMImagePublisher": "credativ",
+    "VMImageOffer": "Debian",
+    "VMImageSku": "8",
+    "VMImageVersion": "latest",
+    "VMVmSize": "Standard_DS2_v2",
+    "VMNicName": "[concat(variables('VMName'), 'NetworkInterface')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('VMNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [      ],
+      "tags": {
+        "displayName": "[variables('VMNicName')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[parameters('GatewaySubnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('VMName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-04-30-preview",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('VMNicName'))]"
+      ],
+      "tags": {
+        "displayName": "[variables('VMName')]"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('VMVmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('VMName')]",
+          "adminUsername": "[parameters('AdminUserName')]",
+          "adminPassword": "[parameters('AdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('VMImagePublisher')]",
+            "offer": "[variables('VMImageOffer')]",
+            "sku": "[variables('VMImageSku')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[concat(variables('VMName'), '-OSDisk')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            },
+            "diskSizeGB": 30
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('VMNicName'))]"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

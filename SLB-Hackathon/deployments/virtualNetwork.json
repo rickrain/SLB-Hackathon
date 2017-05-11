@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+
+  },
+  "variables": {
+    "vnetName": "vnet",
+    "vnetPrefix": "10.0.0.0/16",
+    "vnetGatewaySubnetName": "IoT-Gateway-Subnet",
+    "vnetGatewaySubnetPrefix": "10.0.0.0/24"
+  },
+  "resources": [
+    {
+      "name": "[variables('vnetName')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "[variables('vnetName')]"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnetPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('vnetGatewaySubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('vnetGatewaySubnetPrefix')]"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "gatewaySubnetName": {
+      "type": "string",
+      "value": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '/subnets/', variables('vnetGatewaySubnetName'))]"
+    }
+  }
+}

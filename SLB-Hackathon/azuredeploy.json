@@ -1,37 +1,87 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
+  "parameters": {
+    "AdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "AdminPassword": {
+      "type": "securestring"
+    },
+    "_artifactsLocation": {
+      "type": "string"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring"
+    }
+  },
   "variables": {
-    "vnetPrefix": "10.0.0.0/16",
-    "vnetGatewaySubnetName": "GatewaySubnet",
-    "vnetGatewaySubnetPrefix": "10.0.0.0/24"
+    "deploymentTemplateFolder": "deployments",
+
+    "virtualNetworkDeploymentName": "virtualNetworkDeployment",
+    "virtualNetworkDeploymentTemplateFileName": "virtualNetwork.json",
+
+    "edgeGatewayVirtualMachineDeploymentName": "edgeGatewayVirtualMachineDeployment",
+    "edgeGatewayVirtualMachineDeploymentTemplateFileName": "edgeGatewayVirtualMachine.json",
+
+    "modbusSlaveVirtualMachineDeploymentName": "modbusSlaveVirtualMachineDeployment",
+    "modbusSlaveVirtualMachineDeploymentTemplateFileName": "modbusSlaveVirtualMachine.json"
   },
   "resources": [
     {
-      "name": "vnet",
-      "type": "Microsoft.Network/virtualNetworks",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2016-03-30",
-      "dependsOn": [ ],
-      "tags": {
-        "displayName": "vnet"
-      },
+      "name": "[variables('virtualNetworkDeploymentName')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [],
       "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[variables('vnetPrefix')]"
-          ]
-        },
-        "subnets": [
-          {
-            "name": "[variables('vnetGatewaySubnetName')]",
-            "properties": {
-              "addressPrefix": "[variables('vnetGatewaySubnetPrefix')]"
-            }
-          }
-        ]
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('deploymentTemplateFolder'), '/', variables('virtualNetworkDeploymentTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        }
       }
-    }],
+    },
+    {
+      "name": "[variables('edgeGatewayVirtualMachineDeploymentName')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [
+        "[variables('virtualNetworkDeploymentName')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('deploymentTemplateFolder'), '/', variables('edgeGatewayVirtualMachineDeploymentTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "AdminUserName": { "value": "[parameters('AdminUserName')]" },
+          "AdminPassword": { "value": "[parameters('AdminPassword')]" },
+          "GatewaySubnetRef": { "value": "[reference(variables('virtualNetworkDeploymentName')).outputs.gatewaySubnetName.value]" }
+        }
+      }
+    },
+    {
+      "name": "[variables('modbusSlaveVirtualMachineDeploymentName')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [
+        "[variables('virtualNetworkDeploymentName')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('deploymentTemplateFolder'), '/', variables('modbusSlaveVirtualMachineDeploymentTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "AdminUserName": { "value": "[parameters('AdminUserName')]" },
+          "AdminPassword": { "value": "[parameters('AdminPassword')]" },
+          "GatewaySubnetRef": { "value": "[reference(variables('virtualNetworkDeploymentName')).outputs.gatewaySubnetName.value]" }
+        }
+      }
+    }
+  ],
   "outputs": {}
 }

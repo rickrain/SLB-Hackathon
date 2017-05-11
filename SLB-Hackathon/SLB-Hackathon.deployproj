@@ -31,6 +31,9 @@
       <Visible>False</Visible>
     </None>
     <Content Include="Deploy-AzureResourceGroup.ps1" />
+    <Content Include="deployments\modbusSlaveVirtualMachine.json" />
+    <Content Include="deployments\virtualNetwork.json" />
+    <Content Include="deployments\edgeGatewayVirtualMachine.json" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>
