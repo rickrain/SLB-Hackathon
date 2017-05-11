@@ -2,7 +2,36 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {},
-  "variables": {},
-  "resources": [],
+  "variables": {
+    "vnetPrefix": "10.0.0.0/16",
+    "vnetGatewaySubnetName": "GatewaySubnet",
+    "vnetGatewaySubnetPrefix": "10.0.0.0/24"
+  },
+  "resources": [
+    {
+      "name": "vnet",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "vnet"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnetPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('vnetGatewaySubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('vnetGatewaySubnetPrefix')]"
+            }
+          }
+        ]
+      }
+    }],
   "outputs": {}
 }
