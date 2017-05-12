@@ -26,7 +26,10 @@
     "edgeGatewayVirtualMachineDeploymentTemplateFileName": "edgeGatewayVirtualMachine.json",
 
     "modbusSlaveVirtualMachineDeploymentName": "modbusSlaveVirtualMachineDeployment",
-    "modbusSlaveVirtualMachineDeploymentTemplateFileName": "modbusSlaveVirtualMachine.json"
+    "modbusSlaveVirtualMachineDeploymentTemplateFileName": "modbusSlaveVirtualMachine.json",
+
+    "iotHubDeploymentName": "iotHubDeployment",
+    "iotHubDeploymentTemplateFileName": "iotHub.json"
   },
   "resources": [
     {
@@ -79,6 +82,19 @@
           "AdminUserName": { "value": "[parameters('AdminUserName')]" },
           "AdminPassword": { "value": "[parameters('AdminPassword')]" },
           "GatewaySubnetRef": { "value": "[reference(variables('virtualNetworkDeploymentName')).outputs.gatewaySubnetName.value]" }
+        }
+      }
+    },
+    {
+      "name": "[variables('iotHubDeploymentName')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('deploymentTemplateFolder'), '/', variables('iotHubDeploymentTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
         }
       }
     }

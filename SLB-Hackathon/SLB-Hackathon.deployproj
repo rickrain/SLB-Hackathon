@@ -32,6 +32,7 @@
     </None>
     <Content Include="Deploy-AzureResourceGroup.ps1" />
     <Content Include="deployments\modbusSlaveVirtualMachine.json" />
+    <Content Include="deployments\iotHub.json" />
     <Content Include="deployments\virtualNetwork.json" />
     <Content Include="deployments\edgeGatewayVirtualMachine.json" />
   </ItemGroup>

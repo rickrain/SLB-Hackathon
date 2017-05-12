@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+
+  },
+  "variables": {
+    "iotHubName": "[concat('slb-iothub-', uniqueString(resourceGroup().id))]",
+    "iotHubSkuName": "S1",
+    "iotHubSkuCapacityUnits": 1
+  },
+  "resources": [
+    {
+      "name": "[variables('iotHubName')]",
+      "type": "Microsoft.Devices/Iothubs",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-02-03",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "[variables('iotHubName')]"
+      },
+      "sku": {
+        "name": "[variables('iotHubSkuName')]",
+        "capacity": "[variables('iotHubSkuCapacityUnits')]"
+      }
+    }
+  ],
+  "outputs": {}
+}
