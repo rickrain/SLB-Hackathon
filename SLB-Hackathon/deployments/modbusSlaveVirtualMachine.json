@@ -20,7 +20,8 @@
     "VMImageSku": "8",
     "VMImageVersion": "latest",
     "VMVmSize": "Standard_DS2_v2",
-    "VMNicName": "[concat(variables('VMName'), 'NetworkInterface')]"
+    "VMNicName": "[concat(variables('VMName'), 'NetworkInterface')]",
+    "VMPipName": "[concat(variables('VMName'), 'Pip')]"
   },
   "resources": [
     {
@@ -28,7 +29,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
-      "dependsOn": [      ],
+      "dependsOn": [],
       "tags": {
         "displayName": "[variables('VMNicName')]"
       },
@@ -90,6 +91,22 @@
             }
           ]
         }
+      },
+      "resources": [
+        
+      ]
+    },
+    {
+      "name": "[variables('VMPipName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "pip"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
       }
     }
   ],

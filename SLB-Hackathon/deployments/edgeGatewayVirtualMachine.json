@@ -11,6 +11,18 @@
     },
     "GatewaySubnetRef": {
       "type": "string"
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "Auto-generated container in staging storage account to receive post-build staging folder upload"
+      }
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Auto-generated token to access _artifactsLocation"
+      }
     }
   },
   "variables": {
@@ -20,7 +32,15 @@
     "VMImageSku": "8",
     "VMImageVersion": "latest",
     "VMVmSize": "Standard_DS2_v2",
-    "VMNicName": "[concat(variables('VMName'), 'NetworkInterface')]"
+    "VMNicName": "[concat(variables('VMName'), 'NetworkInterface')]",
+    "VMPipName": "[concat(variables('VMName'), 'Pip')]",
+
+    "cseName": "cseGatewaySetup",
+    "cseScriptFolder": "CustomScripts",
+    "cseScriptFileName": "./AllSetup.sh",
+    "cmdCopyScript": "[concat('cp ', variables('cseScriptFileName'), ' $HOME/', variables('cseScriptFileName'))]",
+    "cmdChangeDirHome": "cd $HOME",
+    "cmdExecutScript": "[concat('bash -x ', variables('cseScriptFileName'))]"
   },
   "resources": [
     {
@@ -28,7 +48,8 @@
       "type": "Microsoft.Network/networkInterfaces",
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
-      "dependsOn": [      ],
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('VMPipName'))]"      ],
       "tags": {
         "displayName": "[variables('VMNicName')]"
       },
@@ -40,6 +61,9 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[parameters('GatewaySubnetRef')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('VMPipName'))]"
               }
             }
           }
@@ -90,6 +114,45 @@
             }
           ]
         }
+      },
+      "resources": [
+        {
+          "name": "[variables('cseName')]",
+          "type": "extensions",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2015-06-15",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', variables('VMName'))]"
+          ],
+          "tags": {
+            "displayName": "[variables('cseName')]"
+          },
+          "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('_artifactsLocation'), '/', variables('cseScriptFolder'), '/', variables('cseScriptFileName'), parameters('_artifactsLocationSasToken'))]"
+              ],
+              "commandToExecute": "[concat('bash -x ', variables('cseScriptFileName'))]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "[variables('VMPipName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "pip"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
       }
     }
   ],

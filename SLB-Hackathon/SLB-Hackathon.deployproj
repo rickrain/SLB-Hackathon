@@ -27,6 +27,9 @@
   <ItemGroup>
     <Content Include="azuredeploy.json" />
     <Content Include="azuredeploy.parameters.json" />
+    <None Include="CustomScripts\ModbusSetup.sh" />
+    <None Include="CustomScripts\AllSetup.sh" />
+    <None Include="CustomScripts\GatewaySetup.sh" />
     <None Include="Deployment.targets">
       <Visible>False</Visible>
     </None>

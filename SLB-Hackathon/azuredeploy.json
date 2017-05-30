@@ -61,7 +61,9 @@
         "parameters": {
           "AdminUserName": { "value": "[parameters('AdminUserName')]" },
           "AdminPassword": { "value": "[parameters('AdminPassword')]" },
-          "GatewaySubnetRef": { "value": "[reference(variables('virtualNetworkDeploymentName')).outputs.gatewaySubnetName.value]" }
+          "GatewaySubnetRef": { "value": "[reference(variables('virtualNetworkDeploymentName')).outputs.gatewaySubnetName.value]" },
+          "_artifactsLocation": { "value": "[parameters('_artifactsLocation')]" },
+          "_artifactsLocationSasToken": { "value": "[parameters('_artifactsLocationSasToken')]" }
         }
       }
     },
